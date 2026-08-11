@@ -1,0 +1,14 @@
+services:
+  pdf-converter:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MAX_UPLOAD_MB=50
+      - CONVERTER_WORK_DIR=/data
+    volumes:
+      - converter_data:/data
+    restart: unless-stopped
+
+volumes:
+  converter_data:
