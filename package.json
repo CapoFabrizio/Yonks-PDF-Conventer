@@ -1,0 +1,37 @@
+{
+  "name": "yonks-pdf-converter",
+  "version": "1.0.0",
+  "description": "Convertisseur PDF vers DOCX/ODT/RTF/DOC/TXT 100% navigateur, open source, sans clé API",
+  "scripts": {
+    "test": "node tests/browser-test.mjs",
+    "dev": "vite",
+    "build": "vite build && node scripts/release.mjs",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapoFabrizio/yonks-pdf-conventer.git"
+  },
+  "keywords": [
+    "pdf",
+    "docx",
+    "word",
+    "converter",
+    "pdfjs"
+  ],
+  "author": "Fabrizio — YONK'S LABS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CapoFabrizio/yonks-pdf-conventer/issues"
+  },
+  "homepage": "https://github.com/CapoFabrizio/yonks-pdf-conventer#readme",
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "pdfjs-dist": "3.11.174"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^23.11.1",
+    "vite": "^5.4.21",
+    "vite-plugin-singlefile": "^2.3.4"
+  }
+}

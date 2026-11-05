@@ -1,0 +1,31 @@
+# Build + tests de bout en bout dans Chrome à chaque push, puis publication sur GitHub Pages
+# (activer : Settings > Pages > Source = « GitHub Actions »).
+name: CI et publication
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+        env: { CHROME_PATH: /usr/bin/google-chrome }
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with: { path: dist }
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build-test
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4
+        continue-on-error: true

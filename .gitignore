@@ -1,0 +1,6 @@
+node_modules/
+scratch/
+tests/output/
+dist/
+*.log
+.DS_Store

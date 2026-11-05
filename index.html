@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yonk's PDF Converter — PDF vers Word, ODT, RTF, 100 % local</title>
+  <meta name="description" content="Convertissez vos PDF en Word (.docx), .odt, .rtf, .doc ou .txt directement dans votre navigateur : texte éditable, images et graphiques conservés. Aucun envoi de fichier, aucune clé API." />
+  <meta name="theme-color" content="#0f1719" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e3a23c'/%3E%3Cpath d='M9 8h9l5 5v11H9z' fill='%230f1719'/%3E%3Cpath d='M18 8v5h5' fill='none' stroke='%23e3a23c' stroke-width='1.5'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="./" aria-label="Yonk's PDF Converter">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M9 8h9l5 5v11H9z"/><path class="fold" d="M18 8v5h5"/></svg>
+        <span>Yonk's <b>PDF</b> Converter</span>
+      </a>
+      <span class="tag">100 % local · open source · sans clé API</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Du PDF au document <em>modifiable</em>,<br />images et mise en page comprises.</h1>
+      <p>Texte éditable avec ses styles, images extraites à leur place, colonnes, titres et graphiques conservés.
+        Tout se passe dans votre navigateur&nbsp;: vos fichiers ne quittent jamais votre ordinateur.</p>
+    </section>
+
+    <section class="workbench">
+      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Ajouter des fichiers PDF">
+        <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M24 31V11m0 0-8 8m8-8 8 8" /><path d="M10 29v6a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-6" /></svg>
+        <p class="dz-title">Déposez vos PDF ici</p>
+        <p class="dz-sub">ou cliquez pour choisir — plusieurs fichiers possibles</p>
+      </div>
+
+      <div class="options">
+        <fieldset class="opt">
+          <legend>Format de sortie</legend>
+          <div class="chips" id="formatChips" role="radiogroup">
+            <button type="button" role="radio" data-format="docx" aria-checked="true"><b>.docx</b><span>Word</span></button>
+            <button type="button" role="radio" data-format="odt" aria-checked="false"><b>.odt</b><span>LibreOffice</span></button>
+            <button type="button" role="radio" data-format="rtf" aria-checked="false"><b>.rtf</b><span>Rich Text</span></button>
+            <button type="button" role="radio" data-format="doc" aria-checked="false"><b>.doc</b><span>Word 97-2003</span></button>
+            <button type="button" role="radio" data-format="txt" aria-checked="false"><b>.txt</b><span>Texte brut</span></button>
+          </div>
+        </fieldset>
+        <fieldset class="opt">
+          <legend>Mode</legend>
+          <div class="segmented" id="modeSeg" role="radiogroup">
+            <button type="button" role="radio" data-mode="editable" aria-checked="true">
+              <b>Éditable</b><span>Texte modifiable, images et graphiques à leur place</span>
+            </button>
+            <button type="button" role="radio" data-mode="exact" aria-checked="false">
+              <b>Mise en page exacte</b><span>Chaque page en image, identique au PDF (non modifiable)</span>
+            </button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="actions">
+        <button id="convertBtn" class="btn primary" disabled>Convertir</button>
+        <button id="zipBtn" class="btn ghost" hidden>Tout télécharger (.zip)</button>
+        <button id="clearBtn" class="btn ghost" hidden>Vider la liste</button>
+      </div>
+
+      <ul id="fileList" class="files" aria-live="polite"></ul>
+    </section>
+
+    <section class="how">
+      <h2>Ce que fait le convertisseur</h2>
+      <div class="how-grid">
+        <article><h3>Texte réel, pas une capture</h3><p>Les lignes sont regroupées en paragraphes, avec police, taille, gras, italique, couleur, alignement et retraits. Les titres deviennent navigables dans Word.</p></article>
+        <article><h3>Images à leur place</h3><p>Chaque photo ou logo est extrait avec ses pixels d'origine (transparence comprise) et réinséré à son emplacement. Les graphiques vectoriels sont restitués en image nette.</p></article>
+        <article><h3>Colonnes et zones</h3><p>Les mises en page en colonnes ou « image à côté du texte » sont reconstruites avec des tableaux invisibles, dans l'ordre de lecture.</p></article>
+        <article><h3>Scans et cas difficiles</h3><p>Une page scannée est conservée en image ; si elle contient une couche OCR, le texte reconnu est récupéré. Le mode « Mise en page exacte » garantit un rendu identique.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>Yonk's PDF Converter — un projet YONK'S LABS. Moteur : <a href="https://mozilla.github.io/pdf.js/" rel="noopener">pdf.js</a> (Mozilla, Apache-2.0) et <a href="https://stuk.github.io/jszip/" rel="noopener">JSZip</a> (MIT). Aucune donnée n'est envoyée sur Internet.</p>
+  </footer>
+
+  <template id="fileTpl">
+    <li class="file">
+      <canvas class="thumb" width="72" height="96" aria-hidden="true"></canvas>
+      <div class="meta">
+        <p class="name"></p>
+        <p class="info"></p>
+        <div class="bar"><span></span></div>
+        <p class="status"></p>
+      </div>
+      <div class="file-actions">
+        <a class="btn small primary dl" hidden>Télécharger</a>
+        <button class="btn small ghost rm" aria-label="Retirer ce fichier">✕</button>
+      </div>
+    </li>
+  </template>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
