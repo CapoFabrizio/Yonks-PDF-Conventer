@@ -1,6 +1,9 @@
 import JSZip from "jszip";
 import { pdfjs, env, docOptions } from "./env/browser.js";
 import { convertPdf, FORMATS } from "./core/index.js";
+import { isNative, platform, saveFile, shareFile, askPassword } from "./platform.js";
+
+document.documentElement.dataset.platform = platform;
 
 const $ = (s) => document.querySelector(s);
 const dropzone = $("#dropzone"), fileInput = $("#fileInput"), list = $("#fileList");
@@ -40,6 +43,8 @@ async function addFiles(fileList) {
     el.querySelector(".info").textContent = humanSize(file.size);
     setStatus(job, "Prêt à convertir");
     el.querySelector(".rm").addEventListener("click", () => removeJob(job));
+    el.querySelector(".dl").addEventListener("click", (e) => { if (isNative) { e.preventDefault(); saveJob(job); } });
+    el.querySelector(".share").addEventListener("click", () => shareJob(job));
     list.appendChild(el);
     jobs.push(job);
     job.bytes = new Uint8Array(await file.arrayBuffer());
@@ -73,8 +78,8 @@ async function openDoc(job, quiet = false) {
     } catch (e) {
       if (e && e.name === "PasswordException") {
         if (quiet && job.password === undefined) { setStatus(job, "PDF protégé : le mot de passe sera demandé à la conversion"); return null; }
-        const pwd = window.prompt(`« ${job.file.name} » est protégé. Mot de passe :`);
-        if (pwd === null) throw new Error("Mot de passe requis pour ce PDF.");
+        const pwd = await askPassword(job.file.name, job.password !== undefined);
+        if (pwd === null) { job.password = undefined; throw new Error("Mot de passe requis pour ce PDF."); }
         job.password = pwd;
         continue;
       }
@@ -108,6 +113,7 @@ const settingsKey = () => `${format}|${mode}`;
 async function runJob(job) {
   const dl = job.el.querySelector(".dl");
   dl.hidden = true;
+  job.el.querySelector(".share").hidden = true;
   setProgress(job, 2);
   setStatus(job, "Lecture du PDF…");
   try {
@@ -125,7 +131,9 @@ async function runJob(job) {
     job.settingsKey = settingsKey();
     job.url = URL.createObjectURL(blob);
     dl.href = job.url; dl.download = job.result.name; dl.hidden = false;
-    dl.textContent = `Télécharger .${res.ext}`;
+    dl.textContent = isNative ? `Enregistrer .${res.ext}` : `Télécharger .${res.ext}`;
+    job.saved = null;
+    job.el.querySelector(".share").hidden = !isNative;
     setProgress(job, 100);
     setStatus(job, summary(res), "ok");
   } catch (e) {
@@ -157,6 +165,24 @@ function friendlyError(e) {
   return m;
 }
 
+// ---------- Android : enregistrement et partage ----------
+async function saveJob(job) {
+  try {
+    job.saved = await saveFile(job.result.name, job.result.bytes, job.result.mime);
+    setStatus(job, `Enregistré dans ${job.saved.where} : ${job.result.name}`, "ok");
+  } catch (e) {
+    setStatus(job, "Échec de l'enregistrement : " + friendlyError(e), "err");
+  }
+}
+async function shareJob(job) {
+  try {
+    if (!job.saved || !job.saved.uri) job.saved = await saveFile(job.result.name, job.result.bytes, job.result.mime);
+    await shareFile(job.saved.uri, job.result.name);
+  } catch (e) {
+    if (!/cancel/i.test(String(e && e.message))) setStatus(job, "Partage impossible : " + friendlyError(e), "err");
+  }
+}
+
 zipBtn.addEventListener("click", async () => {
   const zip = new JSZip();
   const used = new Set();
@@ -165,10 +191,9 @@ zipBtn.addEventListener("click", async () => {
     while (used.has(n)) n = j.result.name.replace(/(\.[^.]+)$/, ` (${k++})$1`);
     used.add(n); zip.file(n, j.result.bytes);
   });
-  const blob = await zip.generateAsync({ type: "blob" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "documents-convertis.zip"; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  const bytes = await zip.generateAsync({ type: "uint8array" });
+  const saved = await saveFile("documents-convertis.zip", bytes, "application/zip");
+  if (isNative && saved.uri) await shareFile(saved.uri, "documents-convertis.zip").catch(() => {});
 });
 
 // ---------- UI ----------
@@ -197,5 +222,11 @@ window.__yonks = {
     let bin = "";
     for (let i = 0; i < res.bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, res.bytes.subarray(i, i + 0x8000));
     return { b64: btoa(bin), stats: res.stats, warnings: res.warnings };
+  },
+  platform,
+  /** Test de l'enregistrement natif (Android) : renvoie l'URI du fichier écrit. */
+  async saveTest(name, base64) {
+    const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+    return saveFile(name, bytes, "application/octet-stream");
   },
 };

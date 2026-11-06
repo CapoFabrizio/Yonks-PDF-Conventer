@@ -1,0 +1,159 @@
+# Compile les applications PC (Windows, Linux) et Android à chaque push sur main et à chaque tag v*,
+# puis les publie dans les Releases GitHub :
+#   - push sur main  -> release « latest » (toujours la dernière version, remplacée à chaque push)
+#   - tag vX.Y.Z     -> release versionnée vX.Y.Z
+name: Applications PC et Android
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apps-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: "0"
+
+jobs:
+  desktop:
+    name: PC (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Windows, os: windows-latest, target: --win }
+          - { name: Linux, os: ubuntu-latest, target: --linux }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+
+      - name: Empaqueter l'application
+        run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Tester l'application empaquetée (fenêtre réelle, conversions, mot de passe, téléchargement)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
+          APP_PATH="$PWD/release-desktop/linux-unpacked/yonks-pdf-converter" xvfb-run -a npm run test:desktop
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.name }}
+          if-no-files-found: error
+          path: |
+            release-desktop/*.exe
+            release-desktop/*.AppImage
+            release-desktop/*.deb
+
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21, cache: gradle }
+      - uses: android-actions/setup-android@v3
+
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+
+      - name: Clé de signature privée (si les secrets sont configurés)
+        id: key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "path=$RUNNER_TEMP/release.jks" >> "$GITHUB_OUTPUT"
+            echo "Signature avec la clé privée du dépôt."
+          else
+            echo "Aucun secret ANDROID_KEYSTORE_BASE64 : signature avec la clé de test publique."
+          fi
+
+      - name: Compiler l'APK (et l'AAB Play Store si clé privée)
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          ANDROID_KEYSTORE_PATH: ${{ steps.key.outputs.path }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          TASKS="assembleRelease"
+          if [ -n "$ANDROID_KEYSTORE_PATH" ]; then TASKS="assembleRelease bundleRelease"; fi
+          ./gradlew $TASKS --no-daemon --stacktrace
+
+      - name: Renommer et vérifier
+        run: |
+          V=$(node -p "require('./package.json').version")
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk "out/Yonks-PDF-Converter-$V-android.apk"
+          if [ -f android/app/build/outputs/bundle/release/app-release.aab ]; then
+            cp android/app/build/outputs/bundle/release/app-release.aab "out/Yonks-PDF-Converter-$V-android.aab"
+          fi
+          BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+          "$ANDROID_HOME/build-tools/$BT/apksigner" verify --print-certs "out/Yonks-PDF-Converter-$V-android.apk"
+          "$ANDROID_HOME/build-tools/$BT/aapt2" dump badging "out/Yonks-PDF-Converter-$V-android.apk" | head -5
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          if-no-files-found: error
+          path: out/*
+
+  release:
+    name: Publier la release
+    needs: [desktop, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: files, merge-multiple: true }
+      - run: ls -la files
+
+      - name: Release versionnée (tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release delete "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -y 2>/dev/null || true
+          gh release create "$GITHUB_REF_NAME" files/* -R "$GITHUB_REPOSITORY" --verify-tag --latest \
+            --title "Yonk's PDF Converter $GITHUB_REF_NAME" --notes-file - << 'EOF'
+          ## Téléchargements
+          - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
+          - **Linux** : `…-linux-x86_64.AppImage` (rendre exécutable puis lancer) ou `…-linux-amd64.deb`
+          - **Android** : `…-android.apk` (autoriser l'installation depuis cette source)
+
+          Tout fonctionne hors ligne : vos PDF ne quittent jamais votre appareil.
+          EOF
+
+      - name: Release « latest » (main)
+        if: github.ref == 'refs/heads/main'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release delete latest -R "$GITHUB_REPOSITORY" -y --cleanup-tag 2>/dev/null || true
+          gh release create latest files/* -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Dernière version (main, ${GITHUB_SHA::7})" --notes-file - << 'EOF'
+          Compilation automatique de la dernière version de la branche main.
+
+          - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
+          - **Linux** : `…-linux-x86_64.AppImage` ou `…-linux-amd64.deb`
+          - **Android** : `…-android.apk`
+          EOF

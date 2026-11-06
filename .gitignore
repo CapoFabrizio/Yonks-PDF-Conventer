@@ -4,3 +4,7 @@ tests/output/
 dist/
 *.log
 .DS_Store
+release-desktop/
+android/app/build/
+android/.gradle/
+tests/output-desktop/

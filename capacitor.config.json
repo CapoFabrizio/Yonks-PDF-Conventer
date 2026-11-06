@@ -1,0 +1,16 @@
+{
+  "appId": "com.yonkslabs.pdfconverter",
+  "appName": "Yonk's PDF",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "DARK"
+    }
+  }
+}

@@ -1,8 +1,10 @@
+<p align="center"><img src="branding/logo-full.png" alt="Yonk's PDF Converter" width="560"></p>
+
 # Yonk's PDF Converter
 
-Convertisseur **PDF → Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc) et texte (.txt)**
-qui fonctionne **entièrement dans le navigateur**. Open source, aucune clé API, aucun serveur :
-vos fichiers ne quittent jamais votre ordinateur.
+Convertisseur **PDF → Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc) et texte (.txt)**,
+disponible **en page web, en application PC (Windows, Linux) et en application Android**.
+Open source, aucune clé API, aucun serveur : vos fichiers ne quittent jamais votre appareil.
 
 Un projet **YONK'S LABS**.
 
@@ -37,13 +39,64 @@ Deux modes :
 et ouvrez-le en double-cliquant (Chrome, Edge, Firefox, Safari). Déposez vos PDF, choisissez le
 format, cliquez sur **Convertir**. Plusieurs fichiers à la fois, téléchargement groupé en .zip.
 
-**En développement** :
+## Applications PC et Android
+
+Les applications sont compilées automatiquement par **GitHub Actions** (`.github/workflows/apps.yml`)
+et publiées dans les [Releases](https://github.com/CapoFabrizio/Yonks-PDF-Conventer/releases) :
+
+| Plateforme | Fichier | Installation |
+|---|---|---|
+| Windows | `…-windows-setup.exe` | Installateur (raccourcis Bureau et menu Démarrer). Windows peut afficher « Windows a protégé votre ordinateur » car l'application n'est pas signée : *Informations complémentaires → Exécuter quand même*. |
+| Windows | `…-windows-portable.exe` | Aucune installation : double-cliquez. |
+| Linux | `…-linux-x86_64.AppImage` | `chmod +x` puis lancez-le. |
+| Linux | `…-linux-amd64.deb` | `sudo apt install ./fichier.deb` |
+| Android | `…-android.apk` | Ouvrez le fichier sur le téléphone et autorisez l'installation depuis cette source. |
+
+- La release **`latest`** est recompilée à chaque push sur `main` ; un tag `vX.Y.Z` crée une release versionnée.
+- Sur Android, **Enregistrer** place le document dans `Documents/Yonks PDF Converter`, et
+  **Partager / ouvrir** l'envoie vers Word, Google Docs, Drive, WhatsApp, un e-mail…
+- Sur PC, **Télécharger** ouvre la boîte « Enregistrer sous » (dossier Téléchargements par défaut).
+
+### Technologies
+
+- **Android** : [Capacitor 8](https://capacitorjs.com) (MIT), plugins officiels Filesystem et Share.
+- **PC** : [Electron](https://www.electronjs.org) (MIT) et electron-builder. Capacitor ne cible pas le
+  bureau officiellement, et son plugin communautaire Electron est abandonné (incompatible avec Capacitor 8) :
+  les deux applications partagent donc le même code web, l'une via Capacitor, l'autre via Electron.
+
+### Signature Android
+
+Sans configuration, l'APK est signé avec la clé de test **publique** `android/keystore/yonks-test.jks` :
+il s'installe et se met à jour par-dessus la version précédente, mais cette clé n'est pas secrète.
+Pour une diffusion publique ou le **Play Store**, créez votre propre clé et ajoutez-la dans
+*Settings → Secrets and variables → Actions* ; le workflow produira alors aussi un `.aab` :
+
+```bash
+keytool -genkeypair -keystore release.jks -storetype PKCS12 -alias yonks -keyalg RSA -keysize 2048 -validity 10950
+base64 -w0 release.jks   # valeur du secret ANDROID_KEYSTORE_BASE64
+```
+
+Secrets : `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
+Conservez `release.jks` précieusement : sans elle, impossible de publier une mise à jour.
+
+### Compiler en local
+
+```bash
+npm run desktop          # lancer l'application PC en développement
+npm run desktop:win      # empaqueter pour Windows (après npm run build)
+npm run desktop:linux    # empaqueter pour Linux
+npm run android:apk      # APK Android (nécessite Android Studio / le SDK Android et Java 21)
+npm run branding         # régénérer logo, icônes PC/Android et écrans de démarrage
+```
+
+**En développement (web)** :
 
 ```bash
 npm install
 npm run dev        # serveur local avec rechargement
 npm run build      # dist/index.html + release/yonks-pdf-converter.html (fichier unique autonome)
 npm test           # tests de bout en bout dans Chrome (après npm run build)
+npm run test:desktop   # test de l'application PC (fenêtre réelle) ; APP_PATH=… pour l'exécutable empaqueté
 ```
 
 ## Mise en ligne
@@ -90,14 +143,22 @@ src/
     convert.js          orchestration, marges, mode « mise en page exacte »
     writers/            docx.js · odt.js · rtf.js (sert aussi pour .doc) · txt.js
   env/browser.js        pdf.js + worker embarqué
+  platform.js           différences web / PC / Android (enregistrement, partage, mot de passe)
   main.js               interface
+electron/main.cjs       fenêtre de l'application PC (isolée de Node.js, liens externes, téléchargements)
+android/                projet Android Capacitor (icônes, écrans de démarrage, signature)
+branding/               logo et générateur de toutes les icônes (make_branding.py)
+.github/workflows/      ci.yml (tests + site GitHub Pages) · apps.yml (PC + Android + Releases)
 tests/
   make_fixtures.py      génère les PDF de test (texte stylé, images, scan, colonnes, tableau,
                         export Word, PDF protégé, page tournée)
   browser-test.mjs      test de bout en bout dans Chrome (interface + tous formats × modes)
+  desktop-smoke.mjs     test de l'application PC empaquetée (interface, mot de passe, téléchargement)
   validate.py           rouvre chaque fichier produit dans LibreOffice, contrôle texte, images,
                         tableaux, styles, et génère des planches « original | converti »
 ```
+
+Logo : création originale YONK'S LABS (`branding/`).
 
 Bibliothèques : [pdf.js](https://mozilla.github.io/pdf.js/) (Mozilla, Apache-2.0) et
 [JSZip](https://stuk.github.io/jszip/) (MIT). Les fichiers Word sont écrits directement au format

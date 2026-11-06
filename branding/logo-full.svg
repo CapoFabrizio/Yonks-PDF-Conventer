@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#1B2E32"/><stop offset="1" stop-color="#0A1113"/></linearGradient></defs><rect width="1600" height="1100" fill="url(#bg)"/><g transform="translate(499.62666666666667 110.0)"><g transform="translate(0 0) scale(0.5866666666666667)">
+  <!-- feuille PDF (arrière) -->
+  <g transform="rotate(-9 380 470)">
+    <path d="M222 238 H468 L548 318 V700 H222 Z" fill="#E3A23C"/>
+    <path d="M468 238 V318 H548 Z" fill="#B9781F"/>
+    <rect x="268" y="372" width="190" height="26" rx="13" fill="#0F1719" opacity=".55"/>
+    <rect x="268" y="424" width="236" height="26" rx="13" fill="#0F1719" opacity=".35"/>
+    <rect x="268" y="476" width="150" height="26" rx="13" fill="#0F1719" opacity=".35"/>
+  </g>
+  <!-- document éditable (avant) -->
+  <g transform="rotate(5 640 590)">
+    <rect x="468" y="330" width="352" height="452" rx="30" fill="#F4F1E8"/>
+    <rect x="512" y="382" width="210" height="30" rx="15" fill="#0F1719"/>
+    <rect x="512" y="436" width="264" height="18" rx="9" fill="#9DB0AF"/>
+    <rect x="512" y="470" width="232" height="18" rx="9" fill="#9DB0AF"/>
+    <!-- image conservée -->
+    <rect x="512" y="516" width="264" height="168" rx="18" fill="#4FD1C5"/>
+    <circle cx="718" cy="566" r="24" fill="#E3A23C"/>
+    <path d="M512 664 L590 586 L650 640 L690 606 L776 676 V684 H512 Z" fill="#0F1719" opacity=".85"/>
+    <rect x="512" y="712" width="200" height="18" rx="9" fill="#9DB0AF"/>
+  </g>
+  <!-- flèche de transformation -->
+  <path d="M300 214 C 420 112, 640 128, 724 262" fill="none" stroke="#4FD1C5" stroke-width="44" stroke-linecap="round"/>
+  <path d="M770 220 L748 330 L652 276 Z" fill="#4FD1C5" stroke="#4FD1C5" stroke-width="14" stroke-linejoin="round"/>
+</g></g><text x="800.0" y="792.1705426356589" text-anchor="middle" font-family="Inter Display" font-weight="800" font-size="102.32558139534883" fill="#ECEBE4">Yonk’s <tspan fill="#E3A23C">PDF</tspan> Converter</text><text x="800.0" y="894.4961240310078" text-anchor="middle" font-family="Inter Display" font-style="italic" font-weight="500" font-size="57.30232558139535" fill="#4FD1C5">Sognare e realizzarlo con noi !</text><text x="800.0" y="976.3565891472869" text-anchor="middle" font-family="Inter" font-weight="600" font-size="43.65891472868217" fill="#9DB0AF" letter-spacing="1.3643410852713178">vistoapplicazione.com</text></svg>

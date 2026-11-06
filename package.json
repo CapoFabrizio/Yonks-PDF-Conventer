@@ -1,12 +1,19 @@
 {
   "name": "yonks-pdf-converter",
-  "version": "1.0.0",
-  "description": "Convertisseur PDF vers DOCX/ODT/RTF/DOC/TXT 100% navigateur, open source, sans clé API",
+  "version": "1.1.0",
+  "description": "Convertisseur PDF vers Word (DOCX), ODT, RTF, DOC et TXT — web, PC (Windows/Linux) et Android, 100 % local, open source, sans clé API",
   "scripts": {
-    "test": "node tests/browser-test.mjs",
     "dev": "vite",
     "build": "vite build && node scripts/release.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node tests/browser-test.mjs",
+    "test:desktop": "node tests/desktop-smoke.mjs",
+    "branding": "python3 branding/make_branding.py",
+    "desktop": "npm run build && electron .",
+    "desktop:win": "electron-builder --win --publish never",
+    "desktop:linux": "electron-builder --linux --publish never",
+    "android:sync": "npm run build && cap sync android",
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease"
   },
   "repository": {
     "type": "git",
@@ -19,19 +26,107 @@
     "converter",
     "pdfjs"
   ],
-  "author": "Fabrizio — YONK'S LABS",
+  "author": {
+    "name": "Fabrizio — YONK'S LABS",
+    "url": "https://github.com/CapoFabrizio"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/CapoFabrizio/yonks-pdf-conventer/issues"
   },
   "homepage": "https://github.com/CapoFabrizio/yonks-pdf-conventer#readme",
-  "dependencies": {
-    "jszip": "^3.10.1",
-    "pdfjs-dist": "3.11.174"
-  },
   "devDependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12",
+    "jszip": "^3.10.1",
+    "pdfjs-dist": "3.11.174",
+    "playwright-core": "^1.65.0",
     "puppeteer-core": "^23.11.1",
     "vite": "^5.4.21",
     "vite-plugin-singlefile": "^2.3.4"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "com.yonkslabs.pdfconverter",
+    "productName": "Yonks PDF Converter",
+    "copyright": "© 2026 YONK'S LABS",
+    "directories": {
+      "output": "release-desktop",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "build/icon.png",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "npmRebuild": false,
+    "artifactName": "Yonks-PDF-Converter-${version}-${os}-${arch}.${ext}",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "shortcutName": "Yonk's PDF Converter",
+      "artifactName": "Yonks-PDF-Converter-${version}-windows-setup.${ext}",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerLanguages": [
+        "fr_FR"
+      ],
+      "language": "1036",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "Yonks-PDF-Converter-${version}-windows-portable.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Office",
+      "synopsis": "Convertisseur PDF vers Word, ODT, RTF — 100 % local",
+      "maintainer": "CapoFabrizio <CapoFabrizio@users.noreply.github.com>",
+      "executableName": "yonks-pdf-converter",
+      "desktop": {
+        "entry": {
+          "Name": "Yonk's PDF Converter"
+        }
+      },
+      "icon": "build/icon.png"
+    },
+    "deb": {
+      "artifactName": "Yonks-PDF-Converter-${version}-linux-${arch}.${ext}"
+    },
+    "appImage": {
+      "artifactName": "Yonks-PDF-Converter-${version}-linux-${arch}.${ext}"
+    },
+    "publish": null
   }
 }

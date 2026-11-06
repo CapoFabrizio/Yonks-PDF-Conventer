@@ -22,8 +22,6 @@ if (!chrome) { console.error("Chrome introuvable : définissez CHROME_PATH"); pr
 const browser = await puppeteer.launch({ executablePath: chrome, headless: true, args: ["--no-sandbox", "--allow-file-access-from-files"] });
 const page = await browser.newPage();
 const errors = [];
-// le PDF de test protégé utilise le mot de passe « yonks » : on répond à la demande de l'interface
-page.on("dialog", (d) => d.accept(/protégé/.test(d.message()) ? "yonks" : undefined));
 page.on("pageerror", (e) => errors.push(String(e)));
 page.on("console", async (m) => {
   if (m.type() !== "error") return;
@@ -42,7 +40,16 @@ const pdfs = fs.readdirSync(fixtures).filter((f) => f.endsWith(".pdf")).sort();
   await input.uploadFile(...pdfs.map((f) => path.join(fixtures, f)));
   await page.waitForFunction((n) => document.querySelectorAll("#fileList .file").length === n, { polling: 200 }, pdfs.length);
   await page.click("#convertBtn");
-  await page.waitForFunction(() => [...document.querySelectorAll("#fileList .status")].every((s) => /Terminé|Échec/.test(s.textContent)), { timeout: 300000, polling: 500 });
+  // le PDF protégé ouvre la fenêtre de mot de passe intégrée : on y saisit « yonks »
+  for (let t = 0; t < 600; t++) {
+    const state = await page.evaluate(() => ({
+      dialog: !!document.querySelector("#pwdDialog[open]"),
+      done: [...document.querySelectorAll("#fileList .status")].every((s) => /Terminé|Échec/.test(s.textContent)),
+    }));
+    if (state.done) break;
+    if (state.dialog) { await page.type("#pwdDialog input", "yonks"); await page.click("#pwdDialog button[type=submit]"); }
+    await new Promise((r) => setTimeout(r, 500));
+  }
   const statuses = await page.$$eval("#fileList .file", (els) => els.map((e) => ({ name: e.querySelector(".name").textContent, status: e.querySelector(".status").textContent, href: e.querySelector(".dl").href, dl: e.querySelector(".dl").download })));
   for (const s of statuses) {
     const ok = /Terminé/.test(s.status);

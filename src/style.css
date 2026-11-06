@@ -8,6 +8,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body { background: radial-gradient(1200px 500px at 70% -10%, #1d3034 0%, transparent 60%), var(--bg); color: var(--text); font: 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
 a { color: var(--teal); }
@@ -18,8 +19,7 @@ a { color: var(--teal); }
 .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font: 600 1.05rem var(--display); letter-spacing: -.01em; }
 .brand b { color: var(--amber); }
-.brand-mark { width: 28px; height: 28px; }
-.brand-mark rect { fill: var(--amber); } .brand-mark path { fill: var(--bg); } .brand-mark .fold { fill: none; stroke: var(--amber); stroke-width: 1.5; }
+.brand-mark { width: 30px; height: 30px; display: block; }
 .tag { font-size: .75rem; color: var(--dim); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; }
 
 .hero { padding: 48px 0 28px; }
@@ -81,3 +81,19 @@ a { color: var(--teal); }
 .how h3 { margin: 0 0 6px; font: 600 .98rem var(--display); color: var(--amber-2); }
 .how p { margin: 0; color: var(--dim); font-size: .9rem; }
 .footer { border-top: 1px solid var(--line); color: var(--dim); font-size: .8rem; padding: 20px 16px 32px; margin-top: 24px; }
+
+.dialog { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--text); padding: 22px; width: min(420px, calc(100vw - 32px)); }
+.dialog::backdrop { background: rgba(5, 10, 11, .7); }
+.dialog h2 { margin: 0 0 8px; font: 600 1.15rem var(--display); }
+.dialog p { margin: 0 0 12px; color: var(--dim); font-size: .92rem; overflow-wrap: anywhere; }
+.dialog label { display: grid; gap: 6px; font-size: .85rem; color: var(--dim); }
+.dialog input { font: inherit; color: var(--text); background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; }
+.dialog input:focus { outline: 2px solid var(--amber-2); outline-offset: 1px; }
+.pwd-error { color: var(--danger) !important; margin-top: 8px !important; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+/* Application Android : pas de glisser-déposer, zone d'ajout plus compacte et bandeau collé sous la barre d'état */
+html[data-platform="android"] .dz-sub { display: none; }
+html[data-platform="android"] .topbar { padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); }
+html[data-platform="android"] .footer { padding-bottom: calc(32px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
+html[data-platform="android"] .wrap { padding-left: max(16px, var(--safe-area-inset-left, 0px)); padding-right: max(16px, var(--safe-area-inset-right, 0px)); }
+html[data-platform="android"] .hero { padding-top: 24px; }
