@@ -160,3 +160,23 @@ jobs:
           - **Linux** : `…-linux-x86_64.AppImage` ou `…-linux-amd64.deb`
           - **Android** : `…-android.apk`
           EOF
+
+      - name: Release versionnée automatique (nouvelle version dans package.json)
+        if: github.ref == 'refs/heads/main'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          V=$(ls files | sed -n 's/^Yonks-PDF-Converter-\([0-9][0-9.]*\)-android\.apk$/\1/p' | head -1)
+          if [ -z "$V" ]; then echo "Version introuvable"; exit 1; fi
+          if gh release view "v$V" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "La release v$V existe déjà : seule « latest » est mise à jour."
+            exit 0
+          fi
+          gh release create "v$V" files/* -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
+            --title "Yonk's PDF Converter v$V" --notes-file - << 'NOTES'
+          ## Téléchargements
+          - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
+          - **Linux** : `…-linux-x86_64.AppImage` (rendre exécutable puis lancer) ou `…-linux-amd64.deb`
+          - **Android** : `…-android.apk` (autoriser l'installation depuis cette source)
+
+          Tout fonctionne hors ligne : vos PDF ne quittent jamais votre appareil.
+          NOTES

@@ -52,7 +52,8 @@ et publiées dans les [Releases](https://github.com/CapoFabrizio/Yonks-PDF-Conve
 | Linux | `…-linux-amd64.deb` | `sudo apt install ./fichier.deb` |
 | Android | `…-android.apk` | Ouvrez le fichier sur le téléphone et autorisez l'installation depuis cette source. |
 
-- La release **`latest`** est recompilée à chaque push sur `main` ; un tag `vX.Y.Z` crée une release versionnée.
+- La release **`latest`** est recompilée à chaque push sur `main`. Pour publier une nouvelle version
+  officielle, changez `version` dans `package.json` : le workflow crée alors la release `vX.Y.Z`.
 - Sur Android, **Enregistrer** place le document dans `Documents/Yonks PDF Converter`, et
   **Partager / ouvrir** l'envoie vers Word, Google Docs, Drive, WhatsApp, un e-mail…
 - Sur PC, **Télécharger** ouvre la boîte « Enregistrer sous » (dossier Téléchargements par défaut).
