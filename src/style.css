@@ -97,3 +97,13 @@ html[data-platform="android"] .topbar { padding-top: var(--safe-area-inset-top, 
 html[data-platform="android"] .footer { padding-bottom: calc(32px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
 html[data-platform="android"] .wrap { padding-left: max(16px, var(--safe-area-inset-left, 0px)); padding-right: max(16px, var(--safe-area-inset-right, 0px)); }
 html[data-platform="android"] .hero { padding-top: 24px; }
+
+/* Signature YONK's LABs (identique sur tous les projets) */
+.signature { border-top: 1px solid var(--line); padding-top: 24px; margin-top: 16px; text-align: center; color: var(--dim); font-size: .875rem; display: grid; gap: 8px; }
+.signature p { margin: 0; }
+.sig-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; }
+.sig-made { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.sig-heart { color: var(--danger); }
+.sig-brand { color: var(--amber); font-weight: 600; text-decoration: none; transition: color .15s; }
+.sig-brand:hover { color: var(--amber-2); }
+.sig-copy { font-size: .75rem; opacity: .8; }

@@ -230,3 +230,6 @@ window.__yonks = {
     return saveFile(name, bytes, "application/octet-stream");
   },
 };
+
+// Année courante dans la signature du pied de page
+document.querySelectorAll('.current-year').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
