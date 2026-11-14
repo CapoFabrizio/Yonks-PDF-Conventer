@@ -41,8 +41,11 @@ format, cliquez sur **Convertir**. Plusieurs fichiers à la fois, téléchargeme
 
 ## Applications PC et Android
 
-Les applications sont compilées automatiquement par **GitHub Actions** (`.github/workflows/apps.yml`)
-et publiées dans les [Releases](https://github.com/CapoFabrizio/Yonks-PDF-Conventer/releases) :
+Les applications sont compilées **à la demande** par **GitHub Actions** (`.github/workflows/apps.yml`) :
+onglet **Actions → « Applications PC et Android » → Run workflow**, puis choisissez `tout`, `android`,
+`windows` ou `linux`. Les fichiers sont publiés dans la [release](https://github.com/CapoFabrizio/Yonks-PDF-Conventer/releases)
+de la version courante ; les anciennes releases et les fichiers intermédiaires sont ensuite supprimés
+pour économiser le stockage.
 
 | Plateforme | Fichier | Installation |
 |---|---|---|
@@ -52,8 +55,7 @@ et publiées dans les [Releases](https://github.com/CapoFabrizio/Yonks-PDF-Conve
 | Linux | `…-linux-amd64.deb` | `sudo apt install ./fichier.deb` |
 | Android | `…-android.apk` | Ouvrez le fichier sur le téléphone et autorisez l'installation depuis cette source. |
 
-- La release **`latest`** est recompilée à chaque push sur `main`. Pour publier une nouvelle version
-  officielle, changez `version` dans `package.json` : le workflow crée alors la release `vX.Y.Z`.
+- Pour publier une nouvelle version, changez `version` dans `package.json` avant de lancer la compilation.
 - Sur Android, **Enregistrer** place le document dans `Documents/Yonks PDF Converter`, et
   **Partager / ouvrir** l'envoie vers Word, Google Docs, Drive, WhatsApp, un e-mail…
 - Sur PC, **Télécharger** ouvre la boîte « Enregistrer sous » (dossier Téléchargements par défaut).
@@ -119,6 +121,15 @@ importez ce dépôt GitHub (ou un .zip dont la racine contient `package.json`), 
 
 > L'ancien message « Framework non pris en charge » venait de la version Python/Docker du projet,
 > que cet importateur ne gère pas. Cette version n'a plus de backend.
+
+### Cloudflare (Workers)
+
+Connectez le dépôt dans Cloudflare (*Workers & Pages → Créer → Importer un dépôt*) avec :
+- commande de build : `npm run build`
+- commande de déploiement : `npx wrangler deploy`
+
+Le fichier `wrangler.jsonc` déclare le site statique (`dist/`) : Wrangler n'a donc pas besoin de sa
+configuration automatique (qui exige Vite 6 et échouait avec ce projet).
 
 ### VPS (Nginx)
 

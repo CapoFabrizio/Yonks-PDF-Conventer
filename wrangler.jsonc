@@ -1,0 +1,12 @@
+// Déploiement Cloudflare (Workers, ressources statiques) : le site est le fichier dist/index.html
+// produit par « npm run build ». Ce fichier évite à Wrangler sa configuration automatique,
+// qui exige Vite 6 ou plus.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "yonks-pdf-conventer",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

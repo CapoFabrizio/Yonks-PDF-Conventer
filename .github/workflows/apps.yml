@@ -1,21 +1,25 @@
-# Compile les applications PC (Windows, Linux) et Android à chaque push sur main et à chaque tag v*,
-# puis les publie dans les Releases GitHub :
-#   - push sur main  -> release « latest » (toujours la dernière version, remplacée à chaque push)
-#   - tag vX.Y.Z     -> release versionnée vX.Y.Z
+# Compile les applications PC (Windows, Linux) et Android À LA DEMANDE uniquement :
+# GitHub > Actions > « Applications PC et Android » > Run workflow > choisir l'application.
+# Les fichiers sont publiés dans la release vX.Y.Z (version de package.json) ; les anciennes
+# releases et les fichiers de compilation intermédiaires sont ensuite supprimés.
 name: Applications PC et Android
 
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      app:
+        description: Application à compiler
+        type: choice
+        default: tout
+        options: [tout, android, windows, linux]
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
-  group: apps-${{ github.ref }}
-  cancel-in-progress: true
+  group: apps
+  cancel-in-progress: false
 
 env:
   FORCE_COLOR: "0"
@@ -23,12 +27,11 @@ env:
 jobs:
   desktop:
     name: PC (${{ matrix.name }})
+    if: inputs.app != 'android'
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { name: Windows, os: windows-latest, target: --win }
-          - { name: Linux, os: ubuntu-latest, target: --linux }
+        include: ${{ fromJSON(inputs.app == 'windows' && '[{"name":"Windows","os":"windows-latest","target":"--win"}]' || inputs.app == 'linux' && '[{"name":"Linux","os":"ubuntu-latest","target":"--linux"}]' || '[{"name":"Windows","os":"windows-latest","target":"--win"},{"name":"Linux","os":"ubuntu-latest","target":"--linux"}]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -51,6 +54,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.name }}
+          retention-days: 1
           if-no-files-found: error
           path: |
             release-desktop/*.exe
@@ -59,6 +63,7 @@ jobs:
 
   android:
     name: Android
+    if: inputs.app == 'tout' || inputs.app == 'android'
     runs-on: ubuntu-latest
     env:
       ELECTRON_SKIP_BINARY_DOWNLOAD: "1"
@@ -120,59 +125,33 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: android
+          retention-days: 1
           if-no-files-found: error
           path: out/*
 
   release:
-    name: Publier la release
+    name: Publier et nettoyer
     needs: [desktop, android]
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
     steps:
       - uses: actions/download-artifact@v4
         with: { path: files, merge-multiple: true }
       - run: ls -la files
 
-      - name: Release versionnée (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        env: { GH_TOKEN: "${{ github.token }}" }
+      - name: Publier dans la release de la version courante
         run: |
-          gh release delete "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -y 2>/dev/null || true
-          gh release create "$GITHUB_REF_NAME" files/* -R "$GITHUB_REPOSITORY" --verify-tag --latest \
-            --title "Yonk's PDF Converter $GITHUB_REF_NAME" --notes-file - << 'EOF'
-          ## Téléchargements
-          - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
-          - **Linux** : `…-linux-x86_64.AppImage` (rendre exécutable puis lancer) ou `…-linux-amd64.deb`
-          - **Android** : `…-android.apk` (autoriser l'installation depuis cette source)
-
-          Tout fonctionne hors ligne : vos PDF ne quittent jamais votre appareil.
-          EOF
-
-      - name: Release « latest » (main)
-        if: github.ref == 'refs/heads/main'
-        env: { GH_TOKEN: "${{ github.token }}" }
-        run: |
-          gh release delete latest -R "$GITHUB_REPOSITORY" -y --cleanup-tag 2>/dev/null || true
-          gh release create latest files/* -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
-            --title "Dernière version (main, ${GITHUB_SHA::7})" --notes-file - << 'EOF'
-          Compilation automatique de la dernière version de la branche main.
-
-          - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
-          - **Linux** : `…-linux-x86_64.AppImage` ou `…-linux-amd64.deb`
-          - **Android** : `…-android.apk`
-          EOF
-
-      - name: Release versionnée automatique (nouvelle version dans package.json)
-        if: github.ref == 'refs/heads/main'
-        env: { GH_TOKEN: "${{ github.token }}" }
-        run: |
-          V=$(ls files | sed -n 's/^Yonks-PDF-Converter-\([0-9][0-9.]*\)-android\.apk$/\1/p' | head -1)
+          V=$(ls files | sed -n 's/^Yonks-PDF-Converter-\([0-9][0-9.]*\)-.*/\1/p' | head -1)
           if [ -z "$V" ]; then echo "Version introuvable"; exit 1; fi
-          if gh release view "v$V" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
-            echo "La release v$V existe déjà : seule « latest » est mise à jour."
-            exit 0
-          fi
-          gh release create "v$V" files/* -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest \
-            --title "Yonk's PDF Converter v$V" --notes-file - << 'NOTES'
+          echo "V=$V" >> "$GITHUB_ENV"
+          if gh release view "v$V" -R "$REPO" > /dev/null 2>&1; then
+            gh release upload "v$V" files/* -R "$REPO" --clobber
+          else
+            gh release create "v$V" files/* -R "$REPO" --target "$GITHUB_SHA" --latest \
+              --title "Yonk's PDF Converter v$V" --notes-file - << 'NOTES'
           ## Téléchargements
           - **Windows** : `…-windows-setup.exe` (installateur) ou `…-windows-portable.exe` (sans installation)
           - **Linux** : `…-linux-x86_64.AppImage` (rendre exécutable puis lancer) ou `…-linux-amd64.deb`
@@ -180,3 +159,13 @@ jobs:
 
           Tout fonctionne hors ligne : vos PDF ne quittent jamais votre appareil.
           NOTES
+          fi
+
+      - name: Supprimer les anciennes releases et les fichiers de compilation
+        run: |
+          gh release list -R "$REPO" --limit 100 --json tagName -q '.[].tagName' | while read -r t; do
+            if [ "$t" != "v$V" ]; then echo "Suppression de la release $t"; gh release delete "$t" -R "$REPO" -y --cleanup-tag; fi
+          done
+          gh api "repos/$REPO/actions/artifacts?per_page=100" -q '.artifacts[].id' | while read -r id; do
+            gh api -X DELETE "repos/$REPO/actions/artifacts/$id" > /dev/null && echo "Artefact $id supprimé"
+          done
