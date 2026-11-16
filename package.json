@@ -7,6 +7,7 @@
     "build": "vite build && node scripts/release.mjs",
     "preview": "vite preview",
     "test": "node tests/browser-test.mjs",
+    "test:formats": "node tests/new-formats-test.mjs",
     "test:desktop": "node tests/desktop-smoke.mjs",
     "branding": "python3 branding/make_branding.py",
     "desktop": "npm run build && electron .",
@@ -50,7 +51,10 @@
   "dependencies": {
     "@capacitor/core": "^8.6.0",
     "@capacitor/filesystem": "^8.1.5",
-    "@capacitor/share": "^8.0.3"
+    "@capacitor/share": "^8.0.3",
+    "cfb": "^1.2.2",
+    "docx-preview": "^0.4.1",
+    "jspdf": "^4.2.1"
   },
   "main": "electron/main.cjs",
   "build": {

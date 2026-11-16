@@ -59,8 +59,10 @@ a { color: var(--teal); }
 #convertBtn { flex: 1 1 220px; padding: 14px 20px; font-size: 1.02rem; }
 
 .files { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.file { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.file { position: relative; display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
 .thumb { width: 56px; height: 74px; border-radius: 6px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); object-fit: contain; }
+.thumb.ext-badge { display: flex; align-items: center; justify-content: center; font: 700 .72rem var(--display); color: var(--bg); letter-spacing: .02em; }
+.badge { display: none; }
 .meta { min-width: 0; }
 .name { margin: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .info, .status { margin: 2px 0 0; font-size: .82rem; color: var(--dim); }
@@ -68,10 +70,15 @@ a { color: var(--teal); }
 .bar { height: 5px; background: var(--bg-2); border-radius: 99px; overflow: hidden; margin-top: 8px; }
 .bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--amber), var(--teal)); transition: width .25s; }
 .file-actions { display: flex; gap: 6px; align-items: center; }
+.txt-preview { margin-top: 8px; display: grid; gap: 6px; }
+.txt-text { width: 100%; resize: vertical; font: 400 .82rem/1.4 ui-monospace, "Liberation Mono", monospace; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-sizing: border-box; }
+.copy-text { justify-self: start; }
+.copy-text.copied { color: var(--ok); border-color: var(--ok); }
 @media (max-width: 560px) {
   .file { grid-template-columns: 48px 1fr; }
   .thumb { width: 48px; height: 64px; }
   .file-actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .txt-preview { grid-column: 1 / -1; }
 }
 
 .how { padding: 48px 0 24px; }

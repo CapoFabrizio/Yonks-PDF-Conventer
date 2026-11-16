@@ -1,0 +1,6 @@
+Notes de réunion
+
+Première ligne avec accents : élève, été, cœur, 25 €.
+	Ligne indentée par une tabulation.
+
+La conversion doit conserver le texte, les styles et les images à leur place. Ce paragraphe est assez long pour s'étendre sur plusieurs lignes et vérifier la justification, les retours à la ligne et la pagination du document final.

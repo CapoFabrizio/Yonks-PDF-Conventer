@@ -2,9 +2,27 @@
 
 # Yonk's PDF Converter
 
-Convertisseur **PDF → Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc) et texte (.txt)**,
-disponible **en page web, en application PC (Windows, Linux) et en application Android**.
+Convertisseur **PDF ⇄ Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc), texte (.txt)
+et page web (.html, .mhtml)**, **dans les deux sens**, disponible **en page web, en application PC
+(Windows, Linux) et en application Android**.
 Open source, aucune clé API, aucun serveur : vos fichiers ne quittent jamais votre appareil.
+
+## Tous les formats, dans les deux sens
+
+| Entrée | Sorties possibles |
+|---|---|
+| PDF | Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc), texte (.txt), page web (.html) |
+| Word (.docx), OpenDocument (.odt), RTF, Word 97-2003 (.doc) | PDF, les autres formats bureautiques, texte (.txt), page web (.html) |
+| Texte (.txt) | PDF, Word/.odt/.rtf/.doc, page web (.html) |
+| Page web (.html, avec son dossier d'images), archive (.mht/.mhtml) | PDF, texte (.txt) — **le texte visible à l'écran, jamais le code source** —, les formats bureautiques |
+
+Pour le texte (.txt), le résultat est aussi affiché directement dans l'interface avec un bouton
+**« Copier le texte »** : pas besoin de télécharger le fichier pour le coller ailleurs.
+
+Les conversions entre formats bureautiques et vers/depuis PDF et HTML passent par un même moteur :
+le document est d'abord affiché par le navigateur lui-même (comme s'il était ouvert normalement),
+puis repeint en PDF vectoriel (texte sélectionnable, polices intégrées) ou relu en page, sans jamais
+couper une ligne de texte, une image ou une ligne de tableau entre deux pages.
 
 Un projet **YONK'S LABS**.
 
@@ -36,8 +54,9 @@ Deux modes :
 ## Utilisation
 
 **Sans rien installer** : téléchargez [`release/yonks-pdf-converter.html`](release/yonks-pdf-converter.html)
-et ouvrez-le en double-cliquant (Chrome, Edge, Firefox, Safari). Déposez vos PDF, choisissez le
-format, cliquez sur **Convertir**. Plusieurs fichiers à la fois, téléchargement groupé en .zip.
+et ouvrez-le en double-cliquant (Chrome, Edge, Firefox, Safari). Déposez vos fichiers (PDF, Word,
+.odt, .rtf, .doc, .txt ou page web), choisissez le format de sortie, cliquez sur **Convertir**.
+Plusieurs fichiers à la fois (y compris mélangés), téléchargement groupé en .zip.
 
 ## Applications PC et Android
 

@@ -1,0 +1,141 @@
+From: <Saved by Blink>
+Snapshot-Content-Location: file:///home/claude/yonks-pdf-conventer/tests/fixtures-in/page-web.html
+Subject: Page web de test
+Date: Sun, 15 Nov 2026 18:53:15 GMT
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3----"
+
+
+------MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3----
+Content-Type: text/html
+Content-ID: <frame-57E9B2612413E9C433C14266FE5487CA@mhtml.blink>
+Content-Transfer-Encoding: quoted-printable
+Content-Location: file:///home/claude/yonks-pdf-conventer/tests/fixtures-in/page-web.html
+
+<!DOCTYPE html><html lang=3D"fr"><head><meta http-equiv=3D"Content-Type" co=
+ntent=3D"text/html; charset=3DUTF-8"><link rel=3D"stylesheet" type=3D"text/=
+css" href=3D"cid:css-a66e0d5a-aef9-446d-a933-d4525966fd1c@mhtml.blink" /><t=
+itle>Page web de test</title>
+<link rel=3D"stylesheet" href=3D"file:///home/claude/yonks-pdf-conventer/te=
+sts/fixtures-in/page-web_files/style.css">
+</head><body>CODE SOURCE INVISIBLE
+
+
+<header class=3D"bandeau"><h1>Actualit=C3=A9s du laboratoire</h1><nav><a hr=
+ef=3D"https://example.org/accueil">Accueil</a> =C2=B7 <a href=3D"https://ex=
+ample.org/contact">Contact</a></nav></header>
+<main>
+<article>
+<h2>Une conversion fid=C3=A8le</h2>
+<p class=3D"intro">Ce texte est <strong>visible =C3=A0 l'=C3=A9cran</strong=
+> et doit =C3=AAtre extrait, avec ses <em>accents</em> : =C3=A9l=C3=A8ve, =
+=C3=A9t=C3=A9, c=C5=93ur.</p>
+<p class=3D"cache">TEXTE MASQU=C3=89 PAR CSS</p>
+<p style=3D"visibility:hidden">TEXTE INVISIBLE</p>
+
+<img src=3D"file:///home/claude/yonks-pdf-conventer/tests/fixtures-in/page-=
+web_files/photo.png" alt=3D"Photo du laboratoire" width=3D"480">
+<p>Paragraphe apr=C3=A8s l'image. La conversion doit conserver le texte, le=
+s styles et les images =C3=A0 leur place. Ce paragraphe est assez long pour=
+ s'=C3=A9tendre sur plusieurs lignes et v=C3=A9rifier la justification, les=
+ retours =C3=A0 la ligne et la pagination du document final. La conversion =
+doit conserver le texte, les styles et les images =C3=A0 leur place. Ce par=
+agraphe est assez long pour s'=C3=A9tendre sur plusieurs lignes et v=C3=A9r=
+ifier la justification, les retours =C3=A0 la ligne et la pagination du doc=
+ument final.</p>
+<ul><li>Premier =C3=A9l=C3=A9ment</li><li>Deuxi=C3=A8me =C3=A9l=C3=A9ment</=
+li></ul>
+<table><tbody><tr><th>Ville</th><th>Pays</th></tr><tr><td>Ancona</td><td>It=
+alia</td></tr><tr><td>Douala</td><td>Cameroun</td></tr></tbody></table>
+<p>Symboles : 25 =E2=82=AC =C2=B7 =CE=B1=CE=B2=CE=B3 =C2=B7 =D0=9F=D1=80=D0=
+=B8=D0=B2=D0=B5=D1=82 =C2=B7 =C3=A9moji =F0=9F=9A=80</p>
+</article>
+</main>
+<footer>=C2=A9 2026 Page de test =E2=80=94 <a href=3D"mailto:contact@exampl=
+e.org">=C3=A9crire</a></footer>
+
+</body></html>
+------MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3----
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-Location: file:///home/claude/yonks-pdf-conventer/tests/fixtures-in/page-web_files/photo.png
+
+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
+gMD/AGVlSFBm6pcHAAAAAElFTkSuQmCC
+
+------MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: file:///home/claude/yonks-pdf-conventer/tests/fixtures-in/page-web_files/style.css
+
+@charset "utf-8";
+
+body { font-family: Georgia, serif; margin: 0px; color: rgb(34, 34, 34); ba=
+ckground: rgb(250, 250, 250); }
+
+.bandeau { background: rgb(31, 78, 121); color: rgb(255, 255, 255); padding=
+: 18px 28px; }
+
+.bandeau h1 { margin: 0px 0px 6px; font-family: Arial, sans-serif; }
+
+.bandeau a { color: rgb(255, 210, 122); }
+
+main { max-width: 760px; margin: 24px auto; padding: 0px 20px; }
+
+.intro { font-size: 18px; border-left: 4px solid rgb(227, 162, 60); padding=
+-left: 12px; }
+
+table { border-collapse: collapse; }
+
+th, td { border: 1px solid rgb(136, 136, 136); padding: 4px 10px; }
+
+th { background: rgb(219, 229, 241); }
+
+footer { text-align: center; color: rgb(102, 102, 102); padding: 20px; bord=
+er-top: 1px solid rgb(204, 204, 204); }
+------MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3----
+Content-Type: text/css
+Content-Transfer-Encoding: quoted-printable
+Content-Location: cid:css-a66e0d5a-aef9-446d-a933-d4525966fd1c@mhtml.blink
+
+@charset "utf-8";
+
+.cache { display: none; }
+------MultipartBoundary--qtkiIKg4wH5TNWSQieMn18taJw5tqIR2O7qaOwMoa3------
